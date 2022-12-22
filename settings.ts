@@ -27,5 +27,17 @@ export default class ConfluencePluginSettingTab extends PluginSettingTab {
 					this.plugin.settings.ConfToken = value;
 					await this.plugin.saveSettings();
 				}));
+
+		new Setting(containerEl)
+			.setName('Confluence Host URL')
+			.setDesc('')
+			.addText(text => text
+				.setPlaceholder('Enter URL')
+				.setValue(this.plugin.settings.ConfURL)
+				.onChange(async (value) => {
+					console.log('Sved URL');
+					this.plugin.settings.ConfURL = value;
+					await this.plugin.saveSettings();
+				}));
 	}
 }
