@@ -1,6 +1,7 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 import ConfluencePluginSettingTab from './settings';
-import { ConfluencePluginSettings, DEFAULT_SETTINGS } from './global';
+import ConfluencePluginSettings, { DEFAULT_SETTINGS } from './global';
+import Confluence from './confluence'
 
 export default class ConfluencePlugin extends Plugin {
 	settings: ConfluencePluginSettings;
@@ -25,7 +26,7 @@ export default class ConfluencePlugin extends Plugin {
 			id: 'open-sample-modal-simple',
 			name: 'Open sample modal (simple)',
 			callback: () => {
-				new SampleModal(this.app).open();
+				new SampleModal(this.app, this.settings).open();
 			}
 		});
 		// This adds an editor command that can perform some operation on the current editor instance
@@ -48,7 +49,7 @@ export default class ConfluencePlugin extends Plugin {
 					// If checking is true, we're simply "checking" if the command can be run.
 					// If checking is false, then we want to actually perform the operation.
 					if (!checking) {
-						new SampleModal(this.app).open();
+						new SampleModal(this.app, this.settings).open();
 					}
 
 					// This command will only show up in Command Palette when the check function returns true
@@ -84,13 +85,21 @@ export default class ConfluencePlugin extends Plugin {
 }
 
 class SampleModal extends Modal {
-	constructor(app: App) {
+  setting: ConfluencePluginSettings;
+
+	constructor(app: App, setting: ConfluencePluginSettings) {
 		super(app);
+    this.setting = setting;
 	}
 
 	onOpen() {
 		const {contentEl} = this;
 		contentEl.setText('Woah!');
+        let confluence = new Confluence();
+
+        confluence.requestPostJSONConfluence(this.setting, "rest/api/contentbody/convert/storage", '{"representation":"wiki", "value":"{cheese}"}').then(
+            (respond) => console.log(respond)
+        );
 	}
 
 	onClose() {

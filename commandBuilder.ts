@@ -1,3 +1,17 @@
+export class CommandRequest{
+    url: URL;
+    method: string;
+    headers: Headers;
+    body: string;
+
+    constructor(url: URL, method: string, headers: Headers, body: string){
+        this.url = url;
+        this.method = method;
+        this.headers = headers;
+        this.body = body;
+    }
+}
+
 export class Command {
     command: string;
     option: string[];
@@ -9,35 +23,34 @@ export class Command {
 }
 
 export default class CommandBuilder {
-    async buildCommand(request: Request): Promise<Command>{
+    buildCommand(request: CommandRequest): Command{
         switch (process.platform){
             case 'win32':
-                return await this.buildWindowsCommand(request);
+                return this.buildWindowsCommand(request);
             default:
-                return await this.buildUnixCommand(request);
+                return this.buildUnixCommand(request);
         }
     }
 
-    async buildUnixCommand(request: Request): Promise<Command>{
+    buildUnixCommand(request: CommandRequest): Command{
         let option: string[] = [];
         option.push('-X')
         option.push(request.method);
-        option.push(request.url);
-        request.headers.forEach((value: string, key: string, _: Headers) => {
+        option.push(request.url.href);
+        request.headers.forEach((value, key) => {
             option.push('-H');
             option.push(`${key}: ${value}`);
         });
         
-        if(request.bodyUsed){
+        if(request.body.length > 0){
             option.push('-d');
-            let data = await request.text();
-            option.push(data);
+            option.push(request.body);
         }
 
         return new Command('curl', option);
     }
 
-    async buildWindowsCommand(request: Request): Promise<Command>{
+    buildWindowsCommand(request: CommandRequest): Command{
         return new Command('', []);
     }
 }
