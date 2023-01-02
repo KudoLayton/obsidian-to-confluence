@@ -1,7 +1,10 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, RequestUrlParam, request, requestUrl, FileSystemAdapter } from 'obsidian';
 import ConfluencePluginSettingTab from './settings';
 import ConfluencePluginSettings, { DEFAULT_SETTINGS } from './global';
+import {spawn} from 'child_process'
 import Confluence from './confluence'
+import {lookpath} from 'lookpath'
+import Markdown2Confluence from './Markdown2Confluence'
 
 export default class ConfluencePlugin extends Plugin {
 	settings: ConfluencePluginSettings;
@@ -86,20 +89,27 @@ export default class ConfluencePlugin extends Plugin {
 
 class SampleModal extends Modal {
   setting: ConfluencePluginSettings;
+  md2conf: Markdown2Confluence;
 
 	constructor(app: App, setting: ConfluencePluginSettings) {
 		super(app);
-    this.setting = setting;
+        this.setting = setting;
+        this.md2conf = new Markdown2Confluence(this.setting.PandocPath);
 	}
 
 	onOpen() {
 		const {contentEl} = this;
 		contentEl.setText('Woah!');
-        let confluence = new Confluence();
 
-        confluence.requestPostJSONConfluence(this.setting, "rest/api/contentbody/convert/storage", '{"representation":"wiki", "value":"{cheese}"}').then(
-            (respond) => console.log(respond)
-        );
+        const fileData = this.app.workspace.getActiveFile();
+        const adapter = this.app.vault.adapter;
+        if(adapter instanceof FileSystemAdapter){
+            try {
+                this.md2conf.translate(adapter.getFullPath(fileData!.path)).then((transResult)=>console.log(transResult));
+            } catch (e){
+                new Notice(e);
+            }
+        }
 	}
 
 	onClose() {

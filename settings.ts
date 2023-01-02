@@ -35,9 +35,22 @@ export default class ConfluencePluginSettingTab extends PluginSettingTab {
 				.setPlaceholder('Enter URL')
 				.setValue(this.plugin.settings.ConfURL)
 				.onChange(async (value) => {
-					console.log('Sved URL');
+					console.log('Saved URL');
 					this.plugin.settings.ConfURL = value;
 					await this.plugin.saveSettings();
 				}));
+
+		new Setting(containerEl)
+			.setName('Pandoc Path')
+			.setDesc('')
+			.addText(text => text
+				.setPlaceholder('Enter Pandoc Path')
+				.setValue(this.plugin.settings.PandocPath)
+				.onChange(async (value) => {
+					console.log('Saved Pandoc Path');
+					this.plugin.settings.PandocPath = value;
+					await this.plugin.saveSettings();
+				}));
+
 	}
 }
