@@ -1,7 +1,7 @@
 
 import * as fs from 'fs';
 
-export interface ConfluencePluginSettings {
+export default interface ConfluencePluginSettings {
 	ConfToken: string;
   ConfURL: string;
 }
