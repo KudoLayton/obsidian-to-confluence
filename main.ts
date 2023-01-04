@@ -1,17 +1,16 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, RequestUrlParam, request, requestUrl, FileSystemAdapter } from 'obsidian';
+import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, RequestUrlParam, request, requestUrl, FileSystemAdapter, TextFileView, WorkspaceLeaf } from 'obsidian';
 import ConfluencePluginSettingTab from './settings';
 import ConfluencePluginSettings, { DEFAULT_SETTINGS } from './global';
 import {spawn} from 'child_process'
 import Confluence from './confluence'
-import {lookpath} from 'lookpath'
 import Markdown2Confluence from './Markdown2Confluence'
+import ConfluenceWikiView, {VIEW_TYPE_CONF_WIKI} from './view'
 
 export default class ConfluencePlugin extends Plugin {
 	settings: ConfluencePluginSettings;
 
 	async onload() {
 		await this.loadSettings();
-
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
@@ -72,6 +71,7 @@ export default class ConfluencePlugin extends Plugin {
 
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
 		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
+    this.registerView(VIEW_TYPE_CONF_WIKI, (leaf: WorkspaceLeaf) => new ConfluenceWikiView(leaf));
 	}
 
 	onunload() {
@@ -105,7 +105,11 @@ class SampleModal extends Modal {
         const adapter = this.app.vault.adapter;
         if(adapter instanceof FileSystemAdapter){
             try {
-                this.md2conf.translate(adapter.getFullPath(fileData!.path)).then((transResult)=>console.log(transResult));
+              this.md2conf.translate(adapter.getFullPath(fileData!.path)).then((transResult)=>{
+                console.log(transResult);
+                let wikiView = new ConfluenceWikiView(this.app.workspace.getLeaf("split", "vertical"));
+                wikiView.setViewData(transResult, true);
+              });
             } catch (e){
                 new Notice(e);
             }
