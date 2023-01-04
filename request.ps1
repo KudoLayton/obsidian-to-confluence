@@ -6,7 +6,7 @@ $method = $Args[0]
 $uri = $Args[1]
 $token = "Bearer " + $Args[2]
 
-if ($method = "GET"){
+if ($method -eq "GET"){
   $headers = @{
     "Authorization" = $token
   }

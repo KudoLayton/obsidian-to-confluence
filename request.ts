@@ -14,11 +14,12 @@ export function request(param: RequestParam, pluginPath: string): Promise<string
     let requestOption: string[] = [];
     if (process.platform == 'win32'){
       requestScriptPath = `${pluginPath}/request.ps1`
-      //requestOption = ["-command", requestScriptPath, "GET", "https://wiki.krafton.com/rest/api/content/1790609292?expand=body.storage", "OTI4NTExNTEyMjM1Or8P2bclOXu8HbYijQAotkGHhoSA"];
       requestOption = ["-command", requestScriptPath, param.method, param.uri, param.token];
       if (param.body !== undefined){
-        requestOption.concat([param.body]);
+          console.log(param.body);
+        requestOption = requestOption.concat([`'${param.body}'`]);
       }
+      console.log(requestOption);
       requestProcess = spawn("PowerShell.exe", requestOption);
     } else {
       requestScriptPath = `${pluginPath}/request.sh`
