@@ -4,17 +4,9 @@ import {requestUrl, RequestUrlResponsePromise, Vault, FileSystemAdapter} from 'o
 import {request} from './request'
 
 export default class Confluence {
-    pluginPath: string
     setting: ConfluencePluginSettings
-    constructor(vault: Vault, setting: ConfluencePluginSettings){
+    constructor(setting: ConfluencePluginSettings){
         this.setting = setting;
-
-        const adapter = vault.adapter;
-        if(adapter instanceof FileSystemAdapter){
-            this.pluginPath = adapter.getFullPath(vault.configDir + '/plugins/obsidian-to-confluence')
-        } else {
-            this.pluginPath = "";
-        }
     }
 
   requestGetConfluence(urlCommand: string): RequestUrlResponsePromise {
@@ -34,7 +26,7 @@ export default class Confluence {
               uri: this.setting.ConfURL + urlCommand,
               token: this.setting.ConfToken,
               body: JSON.stringify(data)
-          }, this.pluginPath).then((respond)=>resolve(respond), (err)=>reject(err));
+          }).then((respond)=>resolve(respond), (err)=>reject(err));
       });
   }
 
@@ -43,5 +35,20 @@ export default class Confluence {
           value: source,
           representation: "wiki"
       })
+  }
+
+  requestCreateConfWiki(source: string, title: string, space: string, parentID: number): Promise<string>{
+    return this.requestPostJsonConfluence("rest/api/content", {
+      type: "page",
+      title: title,
+      ancestors: [{"id": parentID}],
+      space: {"key": space},
+      body: { 
+        storage: {
+          value: source,
+          representation: "wiki"
+        }
+      }
+    });
   }
 }
