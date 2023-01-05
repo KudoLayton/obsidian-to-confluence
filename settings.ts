@@ -1,4 +1,4 @@
-import {App, PluginSettingTab, Setting} from 'obsidian';
+import {App, PluginSettingTab, Setting, Notice} from 'obsidian';
 import ConfluencePlugin from './main';
 
 export default class ConfluencePluginSettingTab extends PluginSettingTab {
@@ -52,5 +52,33 @@ export default class ConfluencePluginSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				}));
 
+		new Setting(containerEl)
+			.setName('Default Wiki Space')
+			.setDesc('')
+			.addText(text => text
+				.setPlaceholder('Enter Space Name')
+				.setValue(this.plugin.settings.defaultSpace)
+				.onChange(async (value) => {
+					console.log('Saved Spaced Name');
+					this.plugin.settings.defaultSpace = value;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('Default Parent Document ID')
+			.setDesc('')
+			.addText(text => text
+				.setPlaceholder('Enter ID')
+				.setValue(this.plugin.settings.defaultParentDocumentID.toString())
+				.onChange(async (value) => {
+          let numberValue = parseInt(value);
+          if (!isNaN(numberValue)){
+            console.log('Saved Default Parent Document ID!');
+            this.plugin.settings.defaultParentDocumentID = numberValue;
+            await this.plugin.saveSettings();
+          } else {
+            new Notice("Please input numbers only!");
+          }
+				}));
 	}
 }
