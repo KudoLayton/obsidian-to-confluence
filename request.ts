@@ -4,27 +4,34 @@ export interface RequestParam {
   uri: string
   token: string
   body?: string,
-  attach?: string
+  attach?: string,
+  headers?: Record<string, string>,
+  forms?: Record<string, string>
 }
 
-export function request(param: RequestParam, pluginPath: string): Promise<string> {
+export function request(param: RequestParam): Promise<string> {
   return new Promise<string>((resolve, reject)=>{
-    let requestScriptPath = "";
     let requestProcess: ChildProcess;
-    let requestOption: string[] = [];
-    if (process.platform == 'win32'){
-      requestScriptPath = `${pluginPath}/request.ps1`
-      requestOption = ["-command", requestScriptPath, param.method, param.uri, param.token];
-      if (param.body !== undefined){
-          console.log(param.body);
-        requestOption = requestOption.concat([`'${param.body}'`]);
+    let requestOption = ["-X", param.method, param.uri, "-H",`Authorization: Bearer ${param.token}`];
+
+    if (param.headers !== undefined){
+      for (const key in param.headers){
+        requestOption = requestOption.concat(["-H", `${key}:${param.headers[key]}`]);
       }
-      console.log(requestOption);
-      requestProcess = spawn("PowerShell.exe", requestOption);
-    } else {
-      requestScriptPath = `${pluginPath}/request.sh`
-      requestProcess = spawn(requestScriptPath, requestOption);
     }
+
+    if (param.body !== undefined){
+      requestOption = requestOption.concat(["-H", "Content-Type: application/json", `-d${param.body}`]);
+    }
+
+    if (param.forms !== undefined){
+      for (const key in param.forms){
+        requestOption = requestOption.concat(["-F", `${key}=${param.forms[key]}`]);
+      }
+    }
+
+    console.log(requestOption);
+    requestProcess = spawn("curl", requestOption);
     let result = "";
     let error = "";
     requestProcess.stdout?.on('data', (data) => result += data);
