@@ -30,6 +30,16 @@ export default class Confluence {
       });
   }
 
+  requestPostFormConfluence(urlCommand: string, forms_data: Record<string, string>, extra_headers: Record<string, string>): Promise<string> {
+    return new Promise<string>((resolve, reject) => request({
+      uri: this.setting.ConfURL + urlCommand,
+      method: "POST",
+      token: this.setting.ConfToken,
+      forms: forms_data,
+      headers: extra_headers
+    }).then((respond)=>console.log(respond)));
+  }
+
   requestConvertConfWiki2Storage(source: string):Promise<string>{
       return this.requestPostJsonConfluence("rest/api/contentbody/convert/storage", {
           value: source,
@@ -49,6 +59,14 @@ export default class Confluence {
           representation: "wiki"
         }
       }
+    });
+  }
+
+  requestAttachFile(filePath: string, pageID: number): Promise<string>{
+    return this.requestPostFormConfluence(`rest/api/content/${pageID}/child/attachment`, {
+      "file": `@${filePath}`
+    }, {
+      "X-Atlassian-Token": "no-check"
     });
   }
 }
