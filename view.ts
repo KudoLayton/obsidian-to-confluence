@@ -11,8 +11,9 @@ export default class ConfluenceWikiView extends ItemView {
   title: string;
   space: string;
   parentID: number;
+  attachments: string[];
 
-  constructor(leaf: WorkspaceLeaf, settings: ConfluencePluginSettings, title: string, space: string, parentID: number){
+  constructor(leaf: WorkspaceLeaf, settings: ConfluencePluginSettings, title: string, space: string, parentID: number, data: string, attachments: string[]){
     super(leaf);
     leaf.open(this);
 
@@ -20,16 +21,40 @@ export default class ConfluenceWikiView extends ItemView {
     this.title = title;
     this.space = space;
     this.parentID = parentID;
+    this.attachments = attachments;
 
-    let button = this.contentEl.createEl('button', {text: "Create page from parent"});
+    const button = this.contentEl.createEl('button', {text: "Create page from parent"});
+    this.contentEl.createEl('h2',{text: "Attachments"});
+    this.contentEl.createEl('ul', undefined, (el) => {
+        for (const idx in attachments){
+            el.createEl('li', {text: attachments[idx]});
+        }
+    });
+
+    console.log(attachments);
+
     button.onclick = () => { 
-      let confluence = new Confluence(this.settings);
+      const confluence = new Confluence(this.settings);
       console.log(`create page - ${this.title} - ${this.space} - ${this.parentID}`);
-      confluence.requestCreateConfWiki(this.getViewData(), this.title, this.space, parentID).then((respond) => {console.log(respond)});
+      confluence.requestCreateConfWiki(this.getViewData(), this.title, this.space, parentID).then((respond) => {
+          const respondObj = JSON.parse(respond);
+          const id = respondObj['id'];
+          let chain: Promise<string> | null = null;
+          for(const idx in attachments){
+              if (chain !== null){
+                  chain = chain.then((file_respond) => confluence.requestAttachFile(attachments[idx], id));
+              } else {
+                  chain = confluence.requestAttachFile(attachments[idx], id);
+              }
+          }
+      });
       button.setText("Update page");
       button.onclick = () => {}
     }
+    this.contentEl.createEl('h2',{text: "Contents"});
     this.codeMirror = CodeMirror(this.contentEl, { theme: "obsidian" });
+    this.codeMirror.setValue(data);
+    this.codeMirror.refresh();
   }
 
   onResize() {

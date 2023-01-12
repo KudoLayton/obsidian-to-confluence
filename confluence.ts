@@ -2,6 +2,7 @@ import ConfluencePluginSettings from './global'
 import {ChildProcess, spawn} from 'child_process'
 import {requestUrl, RequestUrlResponsePromise, Vault, FileSystemAdapter} from 'obsidian' 
 import {request} from './request'
+import assert from 'assert'
 
 export default class Confluence {
     setting: ConfluencePluginSettings
@@ -69,4 +70,65 @@ export default class Confluence {
       "X-Atlassian-Token": "no-check"
     });
   }
+
+  async requestAttachFileList(filePathList: string[], pageID: number): Promise<string[]>{
+      return new Promise<string[]>((resolve, reject) => {
+          async () => {
+              let outputList: string[] = [];
+              for (const idx in filePathList){
+                const output = await this.requestPostFormConfluence(`rest/api/content/${pageID}/child/attachment`, {
+                  "file": `@${filePathList[idx]}`
+                }, {
+                  "X-Atlassian-Token": "no-check"
+                });
+                outputList = outputList.concat([output]);
+              }
+              resolve(outputList);
+          }
+      });
+  }
 }
+
+/*
+async function recursiveRequest (filePathList: string[], pageID: number, conf: Confluence, previousOutput: string[], resolve: any, reject: any): Promise<string[]> {
+  const iteratorObj = iterator.next();
+  const path = iteratorObj.value[1];
+    console.log(path);
+    console.log(iteratorObj);
+    console.log(iteratorObj.done);
+  assert(typeof path === "string");
+  const test = false;
+  if (test){
+      conf.requestAttachFile(path, pageID).then((value) => {
+        previousOutput = previousOutput.concat([value]);
+          resolve(previousOutput);
+      }, reject);
+  } else {
+      conf.requestAttachFile(path, pageID).then((value) => {
+        previousOutput = previousOutput.concat([value]);
+        recursiveRequest(iterator, pageID, conf, previousOutput, resolve, reject);
+      }, reject);
+  }
+}
+function old_recursiveRequest (iterator: IterableIterator<[number, string]>, pageID: number, conf: Confluence, previousOutput: string[], resolve: any, reject: any): void {
+  const iteratorObj = iterator.next();
+  const path = iteratorObj.value[1];
+    console.log(path);
+    console.log(iteratorObj);
+    console.log(iteratorObj.done);
+  assert(typeof path === "string");
+  const test = false;
+  if (test){
+      conf.requestAttachFile(path, pageID).then((value) => {
+        previousOutput = previousOutput.concat([value]);
+          resolve(previousOutput);
+      }, reject);
+  } else {
+      conf.requestAttachFile(path, pageID).then((value) => {
+        previousOutput = previousOutput.concat([value]);
+        recursiveRequest(iterator, pageID, conf, previousOutput, resolve, reject);
+      }, reject);
+  }
+}
+*/
+
