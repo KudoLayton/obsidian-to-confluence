@@ -39,15 +39,8 @@ export default class ConfluenceWikiView extends ItemView {
       confluence.requestCreateConfWiki(this.getViewData(), this.title, this.space, parentID).then((respond) => {
           const respondObj = JSON.parse(respond);
           const id = respondObj['id'];
-          let chain: Promise<string> | null = null;
-          for(const idx in attachments){
-              if (chain !== null){
-                  chain = chain.then((file_respond) => confluence.requestAttachFile(attachments[idx], id));
-              } else {
-                  chain = confluence.requestAttachFile(attachments[idx], id);
-              }
-          }
-      });
+          return confluence.requestAttachFileList(attachments, id);
+      }).then((attachmentLog) => console.log(attachmentLog));
       button.setText("Update page");
       button.onclick = () => {}
     }

@@ -1,7 +1,7 @@
 import ConfluencePluginSettings from './global'
 import {ChildProcess, spawn} from 'child_process'
 import {requestUrl, RequestUrlResponsePromise, Vault, FileSystemAdapter} from 'obsidian' 
-import {request} from './request'
+import {request, serialRequest} from './request'
 import assert from 'assert'
 
 export default class Confluence {
@@ -21,24 +21,22 @@ export default class Confluence {
   }
 
   requestPostJsonConfluence(urlCommand: string, data: any): Promise<string> {
-      return new Promise<string>((resolve, reject)=>{
-          request({
-              method: 'POST',
-              uri: this.setting.ConfURL + urlCommand,
-              token: this.setting.ConfToken,
-              body: JSON.stringify(data)
-          }).then((respond)=>resolve(respond), (err)=>reject(err));
+      return request({
+          method: 'POST',
+          uri: this.setting.ConfURL + urlCommand,
+          token: this.setting.ConfToken,
+          body: JSON.stringify(data)
       });
   }
 
   requestPostFormConfluence(urlCommand: string, forms_data: Record<string, string>, extra_headers: Record<string, string>): Promise<string> {
-    return new Promise<string>((resolve, reject) => request({
+    return request({
       uri: this.setting.ConfURL + urlCommand,
       method: "POST",
       token: this.setting.ConfToken,
       forms: forms_data,
       headers: extra_headers
-    }).then((respond)=>console.log(respond)));
+    })
   }
 
   requestConvertConfWiki2Storage(source: string):Promise<string>{
@@ -71,7 +69,19 @@ export default class Confluence {
     });
   }
 
-  async requestAttachFileList(filePathList: string[], pageID: number): Promise<string[]>{
+  requestAttachFileList(filePathList: string[], pageID: number): Promise<string[]>{
+      const requestList = filePathList.map((filePath) => {
+          return {
+              uri: this.setting.ConfURL + `rest/api/content/${pageID}/child/attachment`,
+              method: "POST",
+              token: this.setting.ConfToken,
+              forms: { "file": `@${filePath}` },
+              headers: { "X-Atlassian-Token": "no-check" }
+          };
+      });
+
+      return serialRequest(requestList);
+      /*
       return new Promise<string[]>((resolve, reject) => {
           async () => {
               let outputList: string[] = [];
@@ -86,8 +96,10 @@ export default class Confluence {
               resolve(outputList);
           }
       });
+      */
   }
 }
+
 
 /*
 async function recursiveRequest (filePathList: string[], pageID: number, conf: Confluence, previousOutput: string[], resolve: any, reject: any): Promise<string[]> {
