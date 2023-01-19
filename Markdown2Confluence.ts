@@ -1,7 +1,6 @@
 import Pandoc, {PandocRequest} from './pandoc'
 import assert from 'assert'
-import { FileSystemAdapter, TFile } from 'obsidian'
-import {Doc, mimeModes} from 'codemirror'
+import { FileSystemAdapter, } from 'obsidian'
 import {platform} from 'os';
 
 export default class Markdown2Confluence {
