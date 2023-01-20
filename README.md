@@ -1,20 +1,20 @@
 # Obsidian to Confluence
-Obsidian to Confluence is the converting plugin from obsidian markdown to confluence wiki page.
+'Obsidian to Confluence' is a plugin that converts Obsidian markdown into Confluence wiki page.
 
 ## Features
-- Converting obsidian markdown page to [Confluence wiki](https://confluence.atlassian.com/doc/confluence-wiki-markup-251003035.html)
+- Converting obsidian markdown pages to [Confluence wiki](https://confluence.atlassian.com/doc/confluence-wiki-markup-251003035.html)
 - Creating a wiki page on user's confluence server
-- Upload attachments in the page
+- Upload attachments to the new created page
 
 ## Installation
-Obsidian2Confluence doesn't register on obsidian community plugin list yet. (I'll do it ASAP!)
+''Obsidian to Confluence' is not listed in the obsidian community plugin list yet. (I'll do it ASAP!)
 Please install the plugin manually.
 
 ### Dependencies
 - [Pandoc](https://pandoc.org/installing.html)
 - [cURL](https://curl.se/download.html)
   - Most Unix OS already have cURL
-  - Windows 10, 11 include cURL after Windows 10 Redstone 4 update ()
+  - Windows 10, 11 include cURL after Windows 10 Redstone 4 update
 
 ### Manual Installation
 1. Download the `obsidian-to-confluence.zip` on [releases page](https://github.com/KudoLayton/obsidian-to-confluence/releases)
@@ -22,14 +22,14 @@ Please install the plugin manually.
 3. Extract the `obsidian-to-confluence.zip` on the directory
 4. Restart Obsidian
 5. Enable the plugin in the community plugins setting menu
-6. Fill out plugin settings
+6. Write plugin settings
 7. Have fun!
 
 ## Setting
-- You need [Confluence Personal Access Token](https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html) for authentication
-- Default wiki space and document id are for a new page creation
-  - New pages are created on the default document
-  - You can find document id at your wiki page url or wiki page source url
+- [Confluence Personal Access Token](https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html) is required for authentication.
+- Default wiki space and document id are for creating new pages
+  - New pages are created under the default document
+  - You can find document id from the wiki page url or wiki page source url
 
 ## Compatible Obsidian Markdown
 - [Headers](https://help.obsidian.md/How+to/Format+your+notes#Headers)
