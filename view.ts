@@ -1,4 +1,4 @@
-import {WorkspaceLeaf, ItemView} from 'obsidian'
+import {WorkspaceLeaf, ItemView, Notice} from 'obsidian'
 import CodeMirror from 'codemirror'
 import Confluence from './confluence'
 import ConfluencePluginSettings from './global';
@@ -37,10 +37,11 @@ export default class ConfluenceWikiView extends ItemView {
       const confluence = new Confluence(this.settings);
       console.log(`create page - ${this.title} - ${this.space} - ${this.parentID}`);
       confluence.requestCreateConfWiki(this.getViewData(), this.title, this.space, parentID).then((respond) => {
+          new Notice("Successfully create the page!")
           const respondObj = JSON.parse(respond);
           const id = respondObj['id'];
           return confluence.requestAttachFileList(attachments, id);
-      }).then((attachmentLog) => console.log(attachmentLog));
+      }).then((attachmentLog) => { new Notice("Successfully upload all attachments") });
       button.setText("Update page");
       button.onclick = () => {}
     }
