@@ -18,7 +18,7 @@ Please install the plugin manually.
 
 ### Manual Installation
 1. Download the `obsidian-to-confluence.zip` on [releases page](https://github.com/KudoLayton/obsidian-to-confluence/releases)
-2. Create a empty directory `vault/obsidian-to-confluence`
+2. Create a empty directory `path/to/vault/.obsidian/plugins/obsidian-to-confluence`
 3. Extract the `obsidian-to-confluence.zip` on the directory
 4. Restart Obsidian
 5. Enable the plugin in the community plugins setting menu
